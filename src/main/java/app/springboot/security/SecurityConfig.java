@@ -12,10 +12,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
-import org.springframework.web.filter.CharacterEncodingFilter;
 import org.springframework.web.filter.HiddenHttpMethodFilter;
 
-import javax.servlet.Filter;
 import java.util.Arrays;
 
 
@@ -43,13 +41,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .csrf().disable()
                 .authorizeRequests()
                 .antMatchers("/login").permitAll() // доступность всем
-                .antMatchers("/show").access("hasRole('ROLE_USER')")
+                .antMatchers("/user").access("hasRole('ROLE_USER')")
                 .antMatchers("/**").access("hasRole('ROLE_ADMIN')")
                 .anyRequest().authenticated()
-                .and().formLogin()
-                .loginPage("/login")
+                .and()
+                .formLogin()
+//                .loginPage("/login")
                 .successHandler(successUserHandler) // подключаем наш SuccessHandler для перенеправления по ролям
-                .loginProcessingUrl("/login")
+//                .loginProcessingUrl("/login")
                 .usernameParameter("j_username")
                 .passwordParameter("j_password")
                 .and().logout()
@@ -58,8 +57,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     }
 
-    // Необходимо для шифрования паролей
-    // В данном примере не используется, отключен
+
     @Bean
     public static NoOpPasswordEncoder passwordEncoder() {
         return (NoOpPasswordEncoder) NoOpPasswordEncoder.getInstance();

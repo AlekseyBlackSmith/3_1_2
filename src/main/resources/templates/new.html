@@ -1,33 +1,111 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://thymeleaf.org">
+<html lang="en" xmlns:th="http://thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
 <head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
     <meta charset="UTF-8">
-    <title>new User</title>
+    <title>new user</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 </head>
+
 <body>
 
-<p>NEW USER:</p>
-<a th:href="@{/logout}">Logout</a>
-<hr/>
-<br/>
+<div th:insert="header::header(${authorizedUser})"></div>
 
-<form th:method="POST" th:action="@{/users}" th:object="${user}">
+<div class="container-fluid">
+    <div class="row">
 
-    <label for="name">Enter name: </label>
-    <input type="text" th:field="*{userName}" id="name" />
-    <br/>
-    <label for="password">Enter password: </label>
-    <input type="text" th:field="*{userPassword}" id="password" />
-    <br/>
-    <div>
-        <p>Choose role: </p>
-        Admin: <input type="checkbox" name="roleAdmin" th:checked="${roleAdmin}">
-        <br>
-        User: <input type="checkbox" name="roleUser" th:checked="${roleUser}">
-        <br>
+        <div class="col-md-2">
+            <br>
+            <div class="nav flex-column nav-pills">
+                <a class="nav-link active" href="/admin" sec:authorize="hasRole('ROLE_ADMIN')">Admin</a>
+                <a class="nav-link " th:href="@{/user/{id} (id=${authorizedUser.getUserId()})}">User</a>
+            </div>
+        </div>
+
+        <div class="col-md-10 bg-light text-dark">
+            <br>
+            <h1>Admin panel</h1>
+
+            <ul class="nav nav-tabs">
+                <li class="nav-item">
+                    <a class="nav-link " href="/admin">User table</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" th:method="GET" href="/user/new">New user</a>
+                </li>
+            </ul>
+
+            <div class="card">
+                <div class="card-header">
+                    <h5>Add new user</h5>
+                </div>
+
+                <div class="card-body">
+                    <form action="/admin" method="POST">
+                        <div class="row justify-content-center">
+                            <div class="form-group col-md-4">
+                                <p class="text-center font-weight-bold mb-md-0">First Name</p>
+                                <input type="text" class="form-control" name="firstName" id="firstName" placeholder="First Name" required>
+                            </div>
+                        </div>
+
+                        <div class="row justify-content-center">
+                            <div class="form-group col-md-4">
+                                <p class="text-center font-weight-bold mb-md-0">Last name</p>
+                                <input type="text" class="form-control" name="lastName" id="lastName" placeholder="LastName" required>
+                            </div>
+                        </div>
+
+                        <div class="row justify-content-center">
+                            <div class="form-group col-md-4">
+                                <p class="text-center font-weight-bold mb-md-0">Age</p>
+                                <input type="text" class="form-control" name="userAge" id="userAge" placeholder="Age" required>
+                            </div>
+                        </div>
+
+                        <div class="row justify-content-center">
+                            <div class="form-group col-md-4">
+                                <p class="text-center font-weight-bold mb-md-0">Email</p>
+                                <input type="text" class="form-control" name="email" id="email" placeholder="Email" required>
+                            </div>
+                        </div>
+
+                        <div class="row justify-content-center">
+                            <div class="form-group col-md-4">
+                                <p class="text-center font-weight-bold mb-md-0">Password</p>
+                                <input type="text" class="form-control" name="password" id="password" placeholder="Password" required>
+                            </div>
+                        </div>
+
+                        <div class="row justify-content-center">
+                            <div class="form-group col-md-4">
+                                <p class="text-center font-weight-bold mb-md-0">Roles</p>
+                                <select name="user_roles" class="form-control" id="user_roles" multiple required>
+                                    <option value="ROLE_ADMIN">ADMIN</option>
+                                    <option value="ROLE_USER">USER</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row justify-content-center">
+                            <button type="submit" class="btn btn-success col-md-2">Add new user</button>
+                        </div>
+                    </form>
+                </div>
+
+
+            </div>
+        </div>
     </div>
-    <input type="submit" value="Create!"/>
-</form>
+</div>
+
+
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 
 </body>
 </html>

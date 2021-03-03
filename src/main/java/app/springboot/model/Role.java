@@ -10,14 +10,14 @@ import java.util.List;
 public class Role implements GrantedAuthority {
 
     @Id
-    @Column(name = "roleId", unique = true)
+    @Column(name = "role_id", unique = true)
     private Long roleId;
 
-    @Column(name = "roleName", unique = true)
+    @Column(name = "role_name", unique = true)
     private String roleName;
 
-    @ManyToMany(mappedBy = "roles")
-    private List<User> users;
+//    @ManyToMany(mappedBy = "roles")
+//    private List<User> users;
 
     public Role() {
     }
@@ -49,13 +49,13 @@ public class Role implements GrantedAuthority {
         this.roleName = roleName;
     }
 
-    public List<User> getUsers() {
-        return users;
-    }
-
-    public void setUsers(List<User> users) {
-        this.users = users;
-    }
+//    public List<User> getUsers() {
+//        return users;
+//    }
+//
+//    public void setUsers(List<User> users) {
+//        this.users = users;
+//    }
 
     @Override
     public String toString() {

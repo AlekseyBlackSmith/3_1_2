@@ -5,7 +5,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -16,29 +15,41 @@ public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "userId")
+    @Column(name = "user_id")
     private Long userId;
 
-    @Column(name = "userName", unique = true)
-    private String userName;
+    @Column(name = "first_name")
+    private String firstName;
 
-    @Column(name = "userPassword")
-    private String userPassword;
+    @Column(name = "last_name")
+    private String lastName;
+
+    @Column(name = "user_age")
+    private int userAge;
+
+    @Column(name = "email", unique = true)
+    private String email;
+
+    @Column(name = "password")
+    private String password;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "users_roles",
-            joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "userId"),
-            inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "roleId"))
+            joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "role_id"))
     private Set<Role> roles;
 
     public User() {
     }
 
-    public User(String userName, String userPassword, Role... roles) {
-        this.userName = userName;
-        this.userPassword = userPassword;
-        this.roles = new HashSet<>(Arrays.asList(roles));
+    public User(String firstName, String lastName, int userAge, String email, String password, Role... roles) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.userAge = userAge;
+        this.email = email;
+        this.password = password;
+        this.roles = new HashSet<>(Set.of(roles));
     }
 
     @Override
@@ -46,14 +57,51 @@ public class User implements UserDetails {
         return roles;
     }
 
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public int getUserAge() {
+        return userAge;
+    }
+
+    public void setUserAge(int userAge) {
+        this.userAge = userAge;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
     @Override
     public String getPassword() {
-        return userPassword;
+        return password;
     }
 
     @Override
     public String getUsername() {
-        return userName;
+        return email;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     @Override
@@ -84,21 +132,6 @@ public class User implements UserDetails {
         this.userId = userId;
     }
 
-    public String getUserName() {
-        return userName;
-    }
-
-    public void setUserName(String userName) {
-        this.userName = userName;
-    }
-
-    public String getUserPassword() {
-        return userPassword;
-    }
-
-    public void setUserPassword(String userPassword) {
-        this.userPassword = userPassword;
-    }
 
     public Set<Role> getRoles() {
         return roles;
@@ -108,12 +141,24 @@ public class User implements UserDetails {
         this.roles = roles;
     }
 
+    public String getStringRoles() {
+        StringBuilder builder = new StringBuilder();
+        for (Role role : roles) {
+            builder.append(role).append(", ");
+        }
+        builder.setLength(builder.length()-2);
+        return builder.toString();
+    }
+
     @Override
     public String toString() {
         return "User{" +
                 "userId=" + userId +
-                ", userName='" + userName + '\'' +
-                ", userPassword='" + userPassword + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", userAge=" + userAge +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
                 ", roles=" + roles +
                 '}';
     }
