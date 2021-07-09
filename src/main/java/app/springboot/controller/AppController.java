@@ -1,26 +1,26 @@
 package app.springboot.controller;
 
 
-import app.springboot.model.Role;
 import app.springboot.model.User;
+import app.springboot.service.RoleService;
 import app.springboot.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.security.Principal;
 
 @Controller
 public class AppController {
     private final UserService userService;
+    private final RoleService roleService;
 
-    @Autowired
-    public AppController(UserService userService) {
+
+    public AppController(UserService userService, RoleService roleService) {
         this.userService = userService;
+        this.roleService = roleService;
     }
 
     @GetMapping("/")
@@ -33,86 +33,62 @@ public class AppController {
         return "login";
     }
 
-    //метод отправляет на страницу с переданным пользователем.
-    //подтянется текущий пользователь из аутентификации. (User увидит только себя)
     @GetMapping(value = "/user")
-    public String userPage(Model model) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        model.addAttribute("authorizedUser", userService.getByEmail(authentication.getName()));
-        model.addAttribute("roles", userService.getByEmail(authentication.getName()).getRoles());
+    public String userPage(Model model,
+                           Principal principal) {
+        model.addAttribute("authorizedUser", userService.getUserByEmailWithRoles(principal.getName()));
         return "/user";
     }
 
-    //получая такой запрос мы получаем id интересующего нас пользователя,
-    //находим его и отправляем с моделью на страницу show (Admin увидит любого)
     @GetMapping("user/{id}")
-    public String showUser(@PathVariable("id") Long id, Model model) {
-        model.addAttribute("authorizedUser", userService.getById(id));
+    public String showUser(@PathVariable("id") Long id,
+                           Model model) {
+        model.addAttribute("authorizedUser", userService.getUserByIdWithRoles(id));
         return "/user";
     }
 
-    //метод отправляет на страницу со всеми пользователями
     @GetMapping("/admin")
-    public String getAllUsers(Model model) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        model.addAttribute("users", userService.listUsers());
-        model.addAttribute("authorizedUser", userService.getByEmail(authentication.getName()));
+    public String getAllUsers(Model model,
+                              Principal principal) {
+        model.addAttribute("authorizedUser", userService.getUserByEmailWithRoles(principal.getName()));
+        model.addAttribute("users", userService.getAllUsers());
+        model.addAttribute("allRoles", roleService.getAllRoles());
         return "/admin";
     }
 
-
-    //запрос на создание пользователя
     @GetMapping("user/new")
-    public String newUser(@ModelAttribute("user") User user, Model model) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        model.addAttribute("authorizedUser", userService.getByEmail(authentication.getName()));
+    public String newUser(@ModelAttribute("user") User user,
+                          Model model,
+                          Principal principal) {
+        model.addAttribute("authorizedUser", userService.getUserByEmailWithRoles(principal.getName()));
+        model.addAttribute("allRoles", roleService.getAllRoles());
         return "/new";
-
     }
 
-    //собственно, создание пользователя
-    @PostMapping("/admin")
-    public String create(@RequestParam(name="roleAdmin", required = false) boolean isAdmin,
-                         @RequestParam(name = "roleUser", required = false) boolean isUser,
-                         @ModelAttribute("user") User user) {
-        user.setRoles(getRolesFromForm(isAdmin, isUser));
-        userService.save(user);
+    @PostMapping("/creatingNewUser")
+    public String create(@ModelAttribute("user") User user,
+                         @RequestParam("rolesSelected") Long[] rolesId) {
+        for (Long roleId : rolesId) {
+            user.setRole(roleService.getRoleById(roleId));
+        }
+        userService.addUser(user);
         return "redirect:/admin";
     }
 
-
-    @PostMapping("user/{id}/edit")
-    public String editUser(User user,
-                       @PathVariable("id") Long id,
-                       @RequestParam(name="roleAdmin", required = false) boolean isAdmin,
-                       @RequestParam(name = "roleUser", required = false) boolean isUser) {
-        user.setRoles(getRolesFromForm(isAdmin, isUser));
-        userService.save(user);
+    @PatchMapping("user/{id}/edit")
+    public String updateUser(@ModelAttribute("user") User user,
+                           @RequestParam("rolesSelected") Long[] rolesId) {
+        for (Long roleId : rolesId) {
+            user.setRole(roleService.getRoleById(roleId));
+        }
+        userService.updateUser(user);
         return "redirect:/admin";
     }
 
-//    удаление по id
-    @PostMapping("user/{id}/delete")
+    @DeleteMapping("user/{id}/delete")
     public String deleteUser(@PathVariable("id") Long id) {
-        userService.deleteById(id);
+        userService.removeUserById(id);
         return "redirect:/admin";
-    }
-
-
-//    //вспомогательный метод
-    private Set<Role> getRolesFromForm(boolean isAdmin, boolean isUser) {
-        Set<Role> newRoles = new HashSet<>();
-
-        if(isAdmin) {
-            newRoles.add(new Role(1L, "ROLE_ADMIN"));
-        }
-        if(isUser) {
-            newRoles.add(new Role(2L, "ROLE_USER"));
-        }
-        if(newRoles.size() == 0) {
-            newRoles.add(new Role(2L, "ROLE_USER"));
-        }
-        return newRoles;
     }
 
 }

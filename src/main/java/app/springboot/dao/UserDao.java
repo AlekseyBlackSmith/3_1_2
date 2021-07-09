@@ -1,10 +1,10 @@
-package app.springboot.service;
+package app.springboot.dao;
 
 import app.springboot.model.User;
 
 import java.util.List;
 
-public interface UserService {
+public interface UserDao {
     void addUser(User user);
     void removeUserById(Long id);
     void updateUser(User user);

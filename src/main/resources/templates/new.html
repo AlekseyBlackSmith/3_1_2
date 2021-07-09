@@ -20,7 +20,7 @@
         <div class="col-md-2">
             <br>
             <div class="nav flex-column nav-pills">
-                <a class="nav-link active" href="/admin" sec:authorize="hasRole('ROLE_ADMIN')">Admin</a>
+                <a class="nav-link active" href="/admin">Admin</a>
                 <a class="nav-link " th:href="@{/user/{id} (id=${authorizedUser.getUserId()})}">User</a>
             </div>
         </div>
@@ -44,7 +44,7 @@
                 </div>
 
                 <div class="card-body">
-                    <form action="/admin" method="POST">
+                    <form action="/creatingNewUser" method="POST">
                         <div class="row justify-content-center">
                             <div class="form-group col-md-4">
                                 <p class="text-center font-weight-bold mb-md-0">First Name</p>
@@ -83,9 +83,11 @@
                         <div class="row justify-content-center">
                             <div class="form-group col-md-4">
                                 <p class="text-center font-weight-bold mb-md-0">Roles</p>
-                                <select name="user_roles" class="form-control" id="user_roles" multiple required>
-                                    <option value="ROLE_ADMIN">ADMIN</option>
-                                    <option value="ROLE_USER">USER</option>
+                                <select name="rolesSelected" class="form-control" id="user_roles" multiple required size="6">
+                                    <option disabled selected>select role</option>
+                                    <div  th:each="role : ${allRoles}">
+                                        <option th:text="${role.getRoleName()}"  th:value="${role.getRoleId()}" name="roles"/>
+                                    </div>
                                 </select>
                             </div>
                         </div>

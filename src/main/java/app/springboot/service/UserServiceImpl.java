@@ -1,49 +1,60 @@
 package app.springboot.service;
 
+import app.springboot.dao.UserDao;
 import app.springboot.model.User;
-import app.springboot.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
+@Transactional
 public class UserServiceImpl implements UserService{
-    private UserRepository userRepository;
+    private final UserDao userDao;
+    private final BCryptPasswordEncoder passwordEncoder;
 
-    @Autowired
-    public UserServiceImpl(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public UserServiceImpl(UserDao userDao, BCryptPasswordEncoder passwordEncoder) {
+        this.userDao = userDao;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
-    @Transactional
-    public void save(User user) {
-        userRepository.save(user);
+    public void addUser(User user) {
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        userDao.addUser(user);
     }
 
     @Override
-    @Transactional
-    public void deleteById(Long id) {
-        userRepository.deleteById(id);
+    public void removeUserById(Long id) {
+        userDao.removeUserById(id);
     }
 
     @Override
-    @Transactional
-    public User getById(Long id) {
-        return userRepository.findById(id).get();
+    public void updateUser(User user) {
+        if (!user.getPassword().equals(userDao.getUserById(user.getUserId()).getPassword())) {
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+        }
+        userDao.updateUser(user);
     }
 
     @Override
-    @Transactional
-    public User getByEmail(String email) {
-        return userRepository.getByEmail(email);
+    public User getUserById(Long id) {
+        return userDao.getUserById(id);
     }
 
     @Override
-    @Transactional
-    public List<User> listUsers() {
-        return userRepository.findAll();
+    public User getUserByEmailWithRoles(String name) {
+        return userDao.getUserByEmailWithRoles(name);
+    }
+
+    @Override
+    public List<User> getAllUsers() {
+        return userDao.getAllUsers();
+    }
+
+    @Override
+    public User getUserByIdWithRoles(Long id) {
+        return userDao.getUserByIdWithRoles(id);
     }
 }

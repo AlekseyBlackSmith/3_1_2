@@ -1,12 +1,12 @@
 package app.springboot.model;
 
-
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -25,7 +25,7 @@ public class User implements UserDetails {
     private String lastName;
 
     @Column(name = "user_age")
-    private int userAge;
+    private Integer userAge;
 
     @Column(name = "email", unique = true)
     private String email;
@@ -33,7 +33,7 @@ public class User implements UserDetails {
     @Column(name = "password")
     private String password;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     @JoinTable(
             name = "users_roles",
             joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "user_id"),
@@ -43,7 +43,7 @@ public class User implements UserDetails {
     public User() {
     }
 
-    public User(String firstName, String lastName, int userAge, String email, String password, Role... roles) {
+    public User(String firstName, String lastName, Integer userAge, String email, String password, Role... roles) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.userAge = userAge;
@@ -141,6 +141,13 @@ public class User implements UserDetails {
         this.roles = roles;
     }
 
+    public void setRole(Role role) {
+        if(this.roles == null) {
+            roles = new HashSet<>();
+        }
+        this.roles.add(role);
+    }
+
     public String getStringRoles() {
         StringBuilder builder = new StringBuilder();
         for (Role role : roles) {
@@ -148,6 +155,19 @@ public class User implements UserDetails {
         }
         builder.setLength(builder.length()-2);
         return builder.toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return Objects.equals(userId, user.userId) && Objects.equals(firstName, user.firstName) && Objects.equals(lastName, user.lastName) && Objects.equals(userAge, user.userAge) && Objects.equals(email, user.email) && Objects.equals(password, user.password);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(userId, firstName, lastName, userAge, email, password);
     }
 
     @Override

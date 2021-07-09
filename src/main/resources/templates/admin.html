@@ -21,7 +21,7 @@
         <div class="col-md-2">
             <br>
             <div class="nav flex-column nav-pills">
-                <a class="nav-link active" href="/admin" sec:authorize="hasRole('ROLE_ADMIN')">Admin</a>
+                <a class="nav-link active" th:href="@{/admin}">Admin</a>
                 <a class="nav-link " th:href="@{/user/{id} (id=${authorizedUser.getUserId()})}">User</a>
             </div>
         </div>
@@ -87,7 +87,7 @@
                                                     </div>
 
                                                     <div class="col-md-6">
-                                                        <form th:action="@{/user/{id}/edit(id=${user.getUserId()})}" class="form-edit" method="POST" >
+                                                        <form th:action="@{/user/{id}/edit(id=${user.getUserId()})}" class="form-edit" th:method="PATCH" >
 
                                                             <div class="form-group">
                                                                 <p class="text-center font-weight-bold mb-md-0">ID</p>
@@ -122,11 +122,12 @@
                                                             <div class="form-group">
                                                                 <p class="text-center font-weight-bold mb-md-0">Role</p>
 
-                                                                <select class="form-control" id="editFormControlSelect" name="newRoles" multiple="multiple">
-                                                                    <option th:each="role : ${user.getRoles()}"
-                                                                            th:value="${role.getRoleId()}"
-                                                                            th:text="${role.getRoleName()}">
-                                                                    </option>
+                                                                <select name="rolesSelected" class="form-control" id="editFormControlSelect" multiple="multiple">
+                                                                    <option disabled selected>select role</option>
+                                                                    <div  th:each="role : ${allRoles}">
+                                                                        <option th:text="${role.getRoleName()}" th:value="${role.getRoleId()}" name="roles"/>
+
+                                                                    </div>
                                                                 </select>
                                                             </div>
 
@@ -165,7 +166,7 @@
                                                     </div>
 
                                                     <div class="col-md-6">
-                                                        <form th:action="@{/user/{id}/delete(id=${user.getUserId()})}" class="form-delete" method="post">
+                                                        <form th:action="@{/user/{id}/delete(id=${user.getUserId()})}" class="form-delete" th:method="DELETE">
 
                                                             <div class="form-group">
                                                                 <p class="text-center font-weight-bold mb-md-0">ID</p>
